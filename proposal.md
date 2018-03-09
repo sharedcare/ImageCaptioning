@@ -19,7 +19,15 @@ For example, for the following image, the model should detect a brown dog and a 
 We will use [Flickr8K](http://nlp.cs.illinois.edu/HockenmaierGroup/8k-pictures.html), [Flickr30K](http://shannon.cs.illinois.edu/DenotationGraph/), and [COCO](http://cocodataset.org/).
 
 ### Software
+
+[Amazon Web Services](https://aws.amazon.com/)
+
+[FloydHub](https://www.floydhub.com)
+
 ### Libraries
+
+[TensorFlow](https://www.tensorflow.org/)
+
 ### Papers
 
 Karpathy, A., & Fei-Fei, L. (2015). Deep visual-semantic alignments for generating image descriptions. 2015 IEEE Conference on Computer Vision and Pattern Recognition (CVPR). doi:10.1109/cvpr.2015.7298932
