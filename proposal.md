@@ -4,9 +4,7 @@ title: Project Proposal
 permalink: /proposal/
 ---
 
-### Project Title
-
-Image Captioning
+### Project Title: Image Captioning
 
 ### Project Idea
 
