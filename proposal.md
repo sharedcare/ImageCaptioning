@@ -17,6 +17,9 @@ For example, for the following image, the model should detect a brown dog and a 
 ![](../assets/example.jpg)
 
 ### Dataset Details
+
+We will use [Flickr8K](http://nlp.cs.illinois.edu/HockenmaierGroup/8k-pictures.html), [Flickr30K](http://shannon.cs.illinois.edu/DenotationGraph/), and [COCO](http://cocodataset.org/).
+
 ### Software
 ### Libraries
 ### Papers
