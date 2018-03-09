@@ -24,8 +24,6 @@ We will use [Flickr8K](http://nlp.cs.illinois.edu/HockenmaierGroup/8k-pictures.h
 
 [FloydHub](https://www.floydhub.com)
 
-### Libraries
-
 [TensorFlow](https://www.tensorflow.org/)
 
 ### Papers
