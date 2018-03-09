@@ -9,6 +9,13 @@ permalink: /proposal/
 Image Captioning
 
 ### Project Idea
+
+We want to train the machine to detect details from an image (such as ) and then output a sentence to describe the image.
+
+For example, for the following image, the model should detect a brown dog and a blue toy. And it can output a sentence like "A dog is trying to catch a blue and toy."
+
+![](../assets/example.jpg)
+
 ### Dataset Details
 ### Software
 ### Libraries
@@ -20,3 +27,4 @@ Image Captioning
 [Tiancheng Luo](https://iLtc.io)
 
 ### Progress Milestones
+
