@@ -40,3 +40,27 @@ Karpathy, A., & Fei-Fei, L. (2015). Deep visual-semantic alignments for generati
 
 ### Progress Milestones
 
+March 8th: Project Proposal Due
+
+March 11th - March 17th: Read papers and prepare the data
+
+March 18th - March 24th:
+
+March 25th - March 31st:
+
+April 5th: Progress Report Due
+
+April 1st - April 7th:
+
+April 8th - April 14th:
+
+April 15th - April 21st:
+
+April 22nd - April 28th:
+
+April 29th - May 3rd: Finalize the project and prepare the final report
+
+May 3rd: Final Report Due
+
+
+
