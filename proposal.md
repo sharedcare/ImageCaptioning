@@ -23,6 +23,9 @@ We will use [Flickr8K](http://nlp.cs.illinois.edu/HockenmaierGroup/8k-pictures.h
 ### Software
 ### Libraries
 ### Papers
+
+Karpathy, A., & Fei-Fei, L. (2015). Deep visual-semantic alignments for generating image descriptions. 2015 IEEE Conference on Computer Vision and Pattern Recognition (CVPR). doi:10.1109/cvpr.2015.7298932
+
 ### Teammate
 
 [Yizhen Chen](https://sharedcare.io/)
