@@ -8,9 +8,9 @@ permalink: /proposal/
 
 ### Project Idea
 
-We want to train the machine to detect details from an image (such as ) and then output a sentence to describe the image.
+We want to train the machine to detect details from an image (such as dog and toy) and then output a sentence to describe the image.
 
-For example, for the following image, the model should detect a brown dog and a blue toy. And it can output a sentence like "A dog is trying to catch a blue and toy."
+For example, for the following image, the model should detect a brown dog and a blue and yellow toy. And it can output a sentence like "A dog is trying to catch a blue and yellow toy."
 
 ![](../assets/example.jpg)
 
@@ -42,21 +42,21 @@ Karpathy, A., & Fei-Fei, L. (2015). Deep visual-semantic alignments for generati
 
 March 8th: Project Proposal Due
 
-March 11th - March 17th: Read papers and prepare the data
+March 11th - March 17th: Read papers and prepare the data.
 
-March 18th - March 24th:
+March 18th - March 24th: Design the model. 
 
-March 25th - March 31st:
+March 25th - March 31st: Train the model to detect details from the images.
 
 April 5th: Progress Report Due
 
-April 1st - April 7th:
+April 1st - April 7th: Improve the model. Prepare the progress report.
 
-April 8th - April 14th:
+April 8th - April 14th: Design and train the model to combine details into sentence.
 
-April 15th - April 21st:
+April 15th - April 21st: Improve the model.
 
-April 22nd - April 28th:
+April 22nd - April 28th: Improve the model.
 
 April 29th - May 3rd: Finalize the project and prepare the final report
 
