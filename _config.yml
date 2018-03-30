@@ -17,8 +17,8 @@ title: Image Captioning
 # email: your-email@example.com
 description: >- # this means to ignore newlines until "baseurl:"
   Image Captioning
-baseurl: "/ImageCaptioning" # the subpath of your site, e.g. /blog
-url: "https://sharedcare.io" # the base hostname & protocol for your site, e.g. http://example.com
+baseurl: "/image-captioning" # the subpath of your site, e.g. /blog
+url: "https://blog.sharedcare.io" # the base hostname & protocol for your site, e.g. http://example.com
 # twitter_username: jekyllrb
 # github_username:  jekyll
 
