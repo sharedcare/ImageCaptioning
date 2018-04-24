@@ -153,7 +153,7 @@ try:
     import urllib2 as urllib
 except ImportError:
     import urllib.request as urllib
-    
+
 from datasets import imagenet
 from nets import inception_v4
 from nets.inception_v4 import inception_v4
@@ -325,25 +325,25 @@ def process_images(data_dir, filenames, batch_size=32):
     # Get the number of total processing images
     num_images = len(filenames)
     pbar = tqdm(total=num_images)
-    
+
     # Initial image batch to store image arrays
     batch_shape = (batch_size, ) + img_size + (3, )
     image_batch = np.zeros(shape=batch_shape, dtype=np.float16)
-    
+
     # Initial transfer values to store outputs from image model
     transfer_shape = (num_images, transfer_values_size)
     transfer_values = np.zeros(shape=transfer_shape, dtype=np.float16)
-    
+
     # Initialize index into the filenames.
     start_index = 0
-    
+
     while start_index < num_images:
         end_index = start_index + batch_size
-    
+
         if end_index > num_images:
             end_index = num_images
             batch_size = end_index - start_index
-        
+
         pbar.update(batch_size)
         # Load all the images in the batch.
         for i, filename in enumerate(filenames[start_index:end_index]):
@@ -352,7 +352,7 @@ def process_images(data_dir, filenames, batch_size=32):
             # This returns the image as a numpy-array.
             img = load_img(filename, target_size=img_size)
             img_array = img_to_array(img)
-            
+
             # Save the image for later use.
             image_batch[i] = img_array
 
@@ -366,7 +366,7 @@ def process_images(data_dir, filenames, batch_size=32):
 
         # Increase the index for the next loop-iteration.
         start_index = end_index
-        
+
     # Print newline.
     print()
 
