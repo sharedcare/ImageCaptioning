@@ -30,6 +30,11 @@ class CaptionPreprocessor(object):
         self._rare_words_handling = (rare_words_handling or 'discard')
         self._words_min_occur = (words_min_occur or 5)
 
+    @property
+    def vocabs(self):
+        word_index = self._tokenizer.word_index
+        return sorted(word_index, key=word_index.get)
+
     def _add_eos(self, captions):
         return map(lambda x: x + ' ' + self.EOS_TOKEN, captions)
 
@@ -125,3 +130,6 @@ if __name__ == '__main__':
     encoded_captions = preprocessor.encode_captions(captions)
 
     batch = preprocessor.preprocess_batch(encoded_captions)
+
+    vocabs = preprocessor.vocabs
+
