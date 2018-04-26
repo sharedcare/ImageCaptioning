@@ -109,3 +109,19 @@ class CaptionPreprocessor(object):
         captions_input = captions_decreased
         captions_output = captions_one_hot_shifted
         return captions_input, captions_output
+
+
+if __name__ == '__main__':
+    preprocessor = CaptionPreprocessor(rare_words_handling='nothing')
+
+    captions = ['Closeup of bins of food that include broccoli and bread.',
+                'A meal is presented in brightly colored plastic trays.',
+                'there are containers filled with different kinds of foods',
+                'Colorful dishes holding meat, vegetables, fruit, and bread.',
+                'A bunch of trays that have different food.']
+
+    preprocessor.fit_on_captions(captions)
+
+    encoded_captions = preprocessor.encode_captions(captions)
+
+    batch = preprocessor.preprocess_batch(encoded_captions)
