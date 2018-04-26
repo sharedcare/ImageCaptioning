@@ -18,7 +18,7 @@ class ImagePreprocessor(object):
         self._img_size = img_size
         self._is_training = is_training
 
-    def _process_image(self, img_dir):
+    def process_image(self, img_dir):
         # Load and resize the image.
         #
         # This returns the image as a numpy-array.
@@ -40,7 +40,7 @@ class ImagePreprocessor(object):
         batch_shape = (batch_size,) + self._img_size + (3,)
         image_batch = np.zeros(shape=batch_shape, dtype=np.float16)
         for i in range(batch_size):
-            processed_array = self._process_image(images[i])
+            processed_array = self.process_image(images[i])
             image_batch[i] = processed_array
         return image_batch
 

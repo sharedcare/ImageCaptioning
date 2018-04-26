@@ -6,11 +6,12 @@
 # python_version  :3.6.3
 # ==============================================================================
 from keras.applications.inception_v3 import InceptionV3
-from keras.layers import Input, BatchNormalization, Embedding, Dense, GRU, LSTM
+from keras.layers import Input, BatchNormalization, RepeatVector, Embedding, Dense, GRU, LSTM, concatenate
 from keras.models import Model
 from keras import backend as K
 from keras.regularizers import l1, l2, l1_l2
 from keras.optimizers import Adam, RMSprop
+from keras.initializers import RandomUniform
 import tensorflow as tf
 
 from .losses import sparse_cross_entropy as loss
@@ -28,9 +29,11 @@ class ImageCaptioningModel(object):
                  rnn_activation='tanh',
                  cnn_model=InceptionV3,
                  optimizer=RMSprop,
+                 initializer=RandomUniform,
                  reg_l1=None,
                  reg_l2=None,
-                 num_word=None):
+                 num_word=None,
+                 is_trainable=False):
         self._rnn_mode = rnn_mode
         self._drop_rate = drop_rate
         self._rnn_state_size = rnn_state_size
@@ -41,6 +44,8 @@ class ImageCaptioningModel(object):
         self._cnn_model = cnn_model
         self._eta = learning_rate
         self._optimizer = optimizer
+        self._is_trainable = is_trainable
+        self._initializer = initializer
         if reg_l1 and reg_l2:
             self._regularizer = l1_l2(reg_l1, reg_l2)
         elif reg_l1:
@@ -49,6 +54,18 @@ class ImageCaptioningModel(object):
             self._regularizer = l2(reg_l2)
         else:
             self._regularizer = None
+
+        # A Tensor with shape (batch_size, height, width, channels)
+        self.images = None
+
+        # An Tensor with shape (batch_size, seq_length)
+        self._seq_input = None
+
+        # A Tensor with shape (batch_size, embedding_size)
+        self._image_embedding = None
+
+        # A numpy array with shape (batch_size, seq_length, embedding_size)
+        self._seq_embedding = None
 
     def _cell(self):
         if self._rnn_mode == 'gru' or 'GRU':
@@ -76,47 +93,42 @@ class ImageCaptioningModel(object):
         else:
             return self._rnn_activation
 
-    def build_model(self):
-        image_input, image_embedding = self._image_embedding()
-        decoder_input, decoder_embedding = self._word_embedding()
-        Model(inputs=image_input,
-              outputs=image_embedding)
-        decoder_output = self._decoder_model(decoder_input)
-        # decoder_target = tf.placeholder(dtype='int32', shape=(None, None))
-        decoder_model = Model(inputs=[image_input, decoder_input],
-                              outputs=decoder_output)
-        decoder_model.compile(optimizer=self._optimizer(lr=self._eta),
-                              loss='categorical_crossentropy')
-        return decoder_model
-
-    def _image_embedding(self):
+    def _build_image_embedding(self):
         model_no_top = self._cnn_model(weights='imagenet', include_top=False, pooling='avg')
         for layer in model_no_top.layers:
-            layer.trainable = False
+            layer.trainable = self._is_trainable
 
-        x = model_no_top.output
-        x = BatchNormalization()(x)
-        x = Dense(self._embedding_size,
-                  kernel_regularizer=self._regularizer)(x)
+        image_model_out = model_no_top.output
+        x = BatchNormalization()(image_model_out)
+        image_embedding = Dense(self._embedding_size,
+                  kernel_regularizer=self._regularizer,
+                  kernel_initializer=self._initializer)(x)
 
         image_input = model_no_top.input
 
-        return image_input, x
+        self._image_embedding = image_embedding
+        self._image_input = image_input
 
-    def _word_embedding(self):
+        return image_input, image_embedding
+
+    def _build_seq_embedding(self):
         decoder_input = Input(shape=(None, ), name='decoder_input')
         decoder_embedding = Embedding(input_dim=self._word_size,
                                       output_dim=self._embedding_size,
                                       embeddings_regularizer=self._regularizer,
                                       name='decoder_embedding')(decoder_input)
+        self._seq_embedding = decoder_embedding
+        self._seq_input = decoder_input
+
         return decoder_input, decoder_embedding
 
-    def _decoder_model(self, decoder_input):
+    def _build_decoder_model(self, decoder_input):
         hidden_layer = self._cell()(units=self._rnn_state_size,
                                     dropout=self._drop_rate,
                                     recurrent_dropout=self._drop_rate,
                                     return_sequences=True,
-                                    recurrent_regularizer=self._regularizer,
+                                    kernel_regularizer=self._regularizer,
+                                    kernel_initializer=self._initializer,
                                     implementation=2)
 
         decoder_dense = Dense(self._word_size,
@@ -128,3 +140,27 @@ class ImageCaptioningModel(object):
             input_ = hidden_layer(input_)
 
         return decoder_dense(input_)
+
+    def build_model(self):
+        self._build_image_embedding()
+        self._build_seq_embedding()
+        image_output = self._cell()(units=self._rnn_state_size,
+                                    dropout=self._drop_rate,
+                                    recurrent_dropout=self._drop_rate,
+                                    return_sequences=True,
+                                    kernel_regularizer=self._regularizer,
+                                    kernel_initializer=self._initializer,
+                                    implementation=2)(self._image_embedding)
+        image_output = RepeatVector(1)(image_output)
+        decoder_input = concatenate([image_output, self._seq_embedding])
+        decoder_output = self._build_decoder_model(decoder_input)
+
+        # Model(inputs=image_input,
+        #      outputs=image_embedding)
+        decoder_output = self._decoder_model(decoder_input)
+        # decoder_target = tf.placeholder(dtype='int32', shape=(None, None))
+        decoder_model = Model(inputs=[image_input, decoder_input],
+                              outputs=decoder_output)
+        decoder_model.compile(optimizer=self._optimizer(lr=self._eta),
+                              loss='categorical_crossentropy')
+        return decoder_model
