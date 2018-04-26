@@ -56,9 +56,7 @@ class CaptionPreprocessor(object):
                                   'yet!'.format(self._rare_words_handling))
 
     def fit_on_captions(self, captions_txt):
-        print(captions_txt)
         captions_txt = self._handle_rare_words(captions_txt)
-        print(captions_txt)
         captions_txt = self._add_eos(captions_txt)
         self._tokenizer.fit_on_texts(captions_txt)
         self._word_of = {i: w for w, i in self._tokenizer.word_index.items()}
@@ -96,8 +94,8 @@ class CaptionPreprocessor(object):
         captions_extended1 = keras_seq.pad_sequences(captions,
                                                      maxlen=captions.shape[-1] + 1,
                                                      padding='post')
-        captions_one_hot = map(self._tokenizer.sequences_to_matrix,
-                               np.expand_dims(captions_extended1, -1))
+        captions_one_hot = list(map(self._tokenizer.sequences_to_matrix,
+                               np.expand_dims(captions_extended1, -1)))
         captions_one_hot = np.array(captions_one_hot, dtype='int')
 
         # Decrease/shift word index by 1.
