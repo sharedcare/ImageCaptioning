@@ -12,6 +12,7 @@ from keras import backend as K
 from keras.regularizers import l1, l2, l1_l2
 from keras.optimizers import Adam, RMSprop
 from keras.initializers import RandomUniform
+
 import tensorflow as tf
 
 from .losses import sparse_cross_entropy as loss
@@ -19,8 +20,6 @@ from .losses import sparse_cross_entropy as loss
 class ImageCaptioningModel(object):
 
     def __init__(self,
-                 learning_rate=None,
-                 vocab_size=None,
                  rnn_mode='lstm',
                  drop_rate=0.0,
                  hidden_dim=3,
@@ -30,10 +29,14 @@ class ImageCaptioningModel(object):
                  cnn_model=InceptionV3,
                  optimizer=RMSprop,
                  initializer=RandomUniform,
+                 learning_rate=None,
                  reg_l1=None,
                  reg_l2=None,
                  num_word=None,
-                 is_trainable=False):
+                 is_trainable=False,
+                 metrics=None,
+                 loss=None):
+
         self._rnn_mode = rnn_mode
         self._drop_rate = drop_rate
         self._rnn_state_size = rnn_state_size
@@ -46,6 +49,9 @@ class ImageCaptioningModel(object):
         self._optimizer = optimizer
         self._is_trainable = is_trainable
         self._initializer = initializer
+        self._metrics = metrics
+        self._loss = loss
+
         if reg_l1 and reg_l2:
             self._regularizer = l1_l2(reg_l1, reg_l2)
         elif reg_l1:
@@ -64,8 +70,15 @@ class ImageCaptioningModel(object):
         # A Tensor with shape (batch_size, embedding_size)
         self._image_embedding = None
 
-        # A numpy array with shape (batch_size, seq_length, embedding_size)
+        # A Tensor with shape (batch_size, seq_length, embedding_size)
         self._seq_embedding = None
+
+        # Output keras model
+        self._image_captioning_model = None
+
+    @property
+    def image_captioning_model(self):
+        return self._image_captioning_model
 
     def _cell(self):
         if self._rnn_mode == 'gru' or 'GRU':
@@ -142,8 +155,6 @@ class ImageCaptioningModel(object):
         return decoder_dense(input_)
 
     def build_model(self):
-        self._build_image_embedding()
-        self._build_seq_embedding()
         image_output = self._cell()(units=self._rnn_state_size,
                                     dropout=self._drop_rate,
                                     recurrent_dropout=self._drop_rate,
@@ -157,10 +168,15 @@ class ImageCaptioningModel(object):
 
         # Model(inputs=image_input,
         #      outputs=image_embedding)
-        decoder_output = self._decoder_model(decoder_input)
         # decoder_target = tf.placeholder(dtype='int32', shape=(None, None))
-        decoder_model = Model(inputs=[image_input, decoder_input],
+        decoder_model = Model(inputs=[self._image_input, decoder_input],
                               outputs=decoder_output)
-        decoder_model.compile(optimizer=self._optimizer(lr=self._eta),
-                              loss='categorical_crossentropy')
-        return decoder_model
+        decoder_model.compile(loss=self._loss,
+                              optimizer=self._optimizer(lr=self._eta),
+                              metrics=self._metrics)
+        self._image_captioning_model = decoder_model
+
+    def build(self):
+        self._build_image_embedding()
+        self._build_seq_embedding()
+        self.build_model()
