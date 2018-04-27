@@ -2,30 +2,50 @@
 import tensorflow as tf
 from keras.applications.inception_v3 import InceptionV3
 from keras.optimizers import RMSprop
+from keras.metrics import mae, categorical_accuracy
+from keras.losses import categorical_crossentropy
+from keras.preprocessing.image import list_pictures
 
 from .model import ImageCaptioningModel
 
 
 config = {
-    'learning_rate': None,
-    'vocab_size': None,
-    'rnn_mode': 'lstm',
-    'drop_rate': 0.0,
-    'hidden_dim': 3,
-    'rnn_state_size': 512,
-    'embedding_size': 128,
-    'rnn_activation': 'tanh',
-    'cnn_model': InceptionV3,
-    'optimizer': RMSprop,
-    'reg_l1': None,
-    'reg_l2': None,
-    'num_word': None
+    'learning_rate': None,                  # Learning rate for model optimizer
+    'rnn_mode': 'lstm',                     # RNN cell type, it can be either LSTM or GRU ---> https://keras.io/layers/recurrent/
+    'drop_rate': 0.0,                       # Dropout rate for RNN
+    'hidden_dim': 3,                        # Hidden layer size for RNN
+    'rnn_state_size': 512,                  # RNN state size, indicates the size of outputs from RNN cell
+    'embedding_size': 128,                  # Embedding layer output size ---> See what is embedding layer: https://keras.io/layers/embeddings/
+    'rnn_activation': 'tanh',               # RNN activation function, e.g. tanh, relu, linear, softmax ---> https://keras.io/activations/
+    'cnn_model': InceptionV3,               # CNN image classification model, can be either Inception V3 or Inception V4
+    'optimizer': RMSprop,                   # Optimizer for reducing error. ---> https://keras.io/optimizers/
+    'reg_l1': None,                         # Regularizer l1    ---> https://keras.io/regularizers/
+    'reg_l2': None,                         # Regularizer l2
+    'num_word': None,                       # Vocabulary size
+    'is_trainable': False,                  # Indicates whether CNN is trainable
+    'metrics': [mae, categorical_accuracy], # Used to judge the performance of the model. ---> https://keras.io/metrics/
+    'loss': categorical_crossentropy        # Loss function ---> https://keras.io/losses/
 }
 
 def run():
 
+    image_data_path = './flick8k/Flicker8k_Dataset/'
+
+    caption_path = './flick8k/dataset.json'
+
+    images = list_pictures(image_data_path)
+
+    num_image = len(images)
+
+    batch_size = 100
+
+    num_seq_per_image = 5
+
+    total_seq = num_image * num_seq_per_image
+
+    steps_per_epoch = total_seq // batch_size
+
     image_captioning_model = ImageCaptioningModel(learning_rate=None,
-                                                  vocab_size=None,
                                                   rnn_mode='lstm',
                                                   drop_rate=0.0,
                                                   hidden_dim=3,
@@ -38,19 +58,19 @@ def run():
                                                   reg_l2=None,
                                                   num_word=None)
 
-    path_checkpoint = './'
+    ckpt_path = './checkpoint/weights.hdf5'
 
-    decoder_model = image_captioning_model.build_model()
-    try:
-        decoder_model.load_weights(path_checkpoint)
-    except Exception as error:
-        print("Error trying to load checkpoint.")
-        print(error)
+    image_captioning_model.build_model()
+    decoder_model = image_captioning_model.image_captioning_model
+
+    if ckpt_path:
+        decoder_model.load_weights(ckpt_path)
+
 
     decoder_model.fit_generator(generator=generator,
                                 steps_per_epoch=steps_per_epoch,
                                 epochs=20,
-                                callbacks=callbacks)
+                                callbacks=None)
 '''
 https://keras.io/models/model/#fit_generator
 
