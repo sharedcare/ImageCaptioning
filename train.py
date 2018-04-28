@@ -7,6 +7,7 @@ from keras.losses import categorical_crossentropy
 from keras.preprocessing.image import list_pictures
 
 from .models import ImageCaptioningModel
+from .callbacks import callback
 
 
 config = {
@@ -71,7 +72,7 @@ def run():
     decoder_model.fit_generator(generator=generator,
                                 steps_per_epoch=steps_per_epoch,
                                 epochs=20,
-                                callbacks=None)
+                                callbacks=callback('checkpoint.keras', './logs/'))
 '''
 https://keras.io/models/model/#fit_generator
 

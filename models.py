@@ -182,23 +182,25 @@ class ImageCaptioningModel(object):
         self._build_seq_embedding()
         self.build_model()
 
-image_captioning_model = ImageCaptioningModel(rnn_mode='lstm',
-                                             drop_rate=0.0,
-                                             hidden_dim=3,
-                                             rnn_state_size=226,
-                                             embedding_size=512,
-                                             rnn_activation='tanh',
-                                             cnn_model=InceptionV3,
-                                             optimizer=RMSprop,
-                                             initializer='random_uniform',
-                                             learning_rate=0.001,
-                                             reg_l1=None,
-                                             reg_l2=None,
-                                             num_word=10000,
-                                             is_trainable=False,
-                                             metrics=None,
-                                             loss='categorical_crossentropy')
 
-image_captioning_model.build()
-decoder_model = image_captioning_model.image_captioning_model
-decoder_model.summary()
+if __name__ == '__main__':
+    image_captioning_model = ImageCaptioningModel(rnn_mode='lstm',
+                                                 drop_rate=0.0,
+                                                 hidden_dim=3,
+                                                 rnn_state_size=226,
+                                                 embedding_size=512,
+                                                 rnn_activation='tanh',
+                                                 cnn_model=InceptionV3,
+                                                 optimizer=RMSprop,
+                                                 initializer='random_uniform',
+                                                 learning_rate=0.001,
+                                                 reg_l1=None,
+                                                 reg_l2=None,
+                                                 num_word=10000,
+                                                 is_trainable=False,
+                                                 metrics=None,
+                                                 loss='categorical_crossentropy')
+
+    image_captioning_model.build()
+    decoder_model = image_captioning_model.image_captioning_model
+    decoder_model.summary()
