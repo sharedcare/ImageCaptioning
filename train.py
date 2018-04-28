@@ -6,7 +6,7 @@ from keras.metrics import mae, categorical_accuracy
 from keras.losses import categorical_crossentropy
 from keras.preprocessing.image import list_pictures
 
-from .model import ImageCaptioningModel
+from .models import ImageCaptioningModel
 
 
 config = {
@@ -26,6 +26,7 @@ config = {
     'metrics': [mae, categorical_accuracy], # Used to judge the performance of the model. ---> https://keras.io/metrics/
     'loss': categorical_crossentropy        # Loss function ---> https://keras.io/losses/
 }
+
 
 def run():
 
