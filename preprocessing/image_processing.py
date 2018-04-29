@@ -58,10 +58,11 @@ class ImagePreprocessor(object):
         return np.array(processed_img)
 
 
-image_processor = ImagePreprocessor(is_training=True, img_size=(299, 299))
-data_dir = "../flickr8k/Flicker8k_Dataset/"
-image_files = list_pictures(data_dir)
-print("Preprocessing images...\n")
-array = image_processor.process_images(image_files)
-print("\nImages preprocessed.")
-print(array.shape)
+if __name__ == '__main__':
+    image_processor = ImagePreprocessor(is_training=True, img_size=(299, 299))
+    data_dir = "../flickr8k/Flicker8k_Dataset/"
+    image_files = list_pictures(data_dir)
+    print("Preprocessing images...\n")
+    array = image_processor.process_images(image_files)
+    print("\nImages preprocessed.")
+    print(array.shape)
