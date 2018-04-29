@@ -73,18 +73,25 @@ class ImgSequence(Sequence):
 
         cap_padded = pad_sequences(cap_input_data, maxlen=max_len, padding='post', truncating='post')
 
-        cap_input_data = cap_padded[:, 0:-1]
-        output_data = cap_padded[:, 1:]
+        cap_input_data = cap_padded
+        # output_data = cap_padded[:, 1:]
+
+        len_cap = [len(t) for t in output_data]
+        max_len = np.max(len_cap)
+
+        cap_padded = pad_sequences(output_data, maxlen=max_len, padding='post', truncating='post')
+
+        output_data = cap_padded
 
         x_data = \
             {
-                'decoder_input': cap_input_data,
+                'decoder_input': np.array(cap_input_data),
                 'input_1': img_input_data
             }
 
         y_data = \
             {
-                'decoder_output': output_data
+                'decoder_output': np.array(output_data).reshape(self.batch_size, len(output_data[0]), len(output_data[0][0]))
             }
 
         return x_data, y_data
@@ -94,5 +101,7 @@ if __name__ == '__main__':
     sequence = generator('./flickr8k/Flicker8k_Dataset/', './flickr8k/dataset.json', 3)
 
     for test in sequence:
-        print(test)
+        x_data, y_data = test
+
+        print(y_data['decoder_output'])
         break

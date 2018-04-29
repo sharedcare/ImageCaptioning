@@ -60,7 +60,7 @@ def run():
                                                  learning_rate=0.001,
                                                  reg_l1=None,
                                                  reg_l2=None,
-                                                 num_word=10000,
+                                                 num_word=8387,
                                                  is_trainable=False,
                                                  metrics=None,
                                                  loss='categorical_crossentropy')
@@ -72,7 +72,6 @@ def run():
 
     if ckpt_path:
         decoder_model.load_weights(ckpt_path)
-
 
     decoder_model.fit_generator(generator=generator(image_data_path, caption_path, batch_size),
                                 steps_per_epoch=steps_per_epoch,
