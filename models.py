@@ -133,6 +133,7 @@ class ImageCaptioningModel(object):
         self._seq_embedding = decoder_embedding
         self._seq_input = decoder_input
         print(decoder_embedding.shape)
+        print(decoder_input.shape)
         return decoder_input, decoder_embedding
 
     def _build_decoder_model(self, decoder_input):

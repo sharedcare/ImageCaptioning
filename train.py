@@ -6,8 +6,9 @@ from keras.metrics import mae, categorical_accuracy
 from keras.losses import categorical_crossentropy
 from keras.preprocessing.image import list_pictures
 
-from .models import ImageCaptioningModel
-from .callbacks import callback
+from models import ImageCaptioningModel
+from callbacks import callback
+from generator import generator
 
 
 config = {
@@ -31,15 +32,15 @@ config = {
 
 def run():
 
-    image_data_path = './flick8k/Flicker8k_Dataset/'
+    image_data_path = './flickr8k/Flicker8k_Dataset/'
 
-    caption_path = './flick8k/dataset.json'
+    caption_path = './flickr8k/dataset.json'
 
     images = list_pictures(image_data_path)
 
     num_image = len(images)
 
-    batch_size = 100
+    batch_size = 35
 
     num_seq_per_image = 5
 
@@ -47,32 +48,41 @@ def run():
 
     steps_per_epoch = total_seq // batch_size
 
-    image_captioning_model = ImageCaptioningModel(learning_rate=None,
-                                                  rnn_mode='lstm',
-                                                  drop_rate=0.0,
-                                                  hidden_dim=3,
-                                                  rnn_state_size=512,
-                                                  embedding_size=128,
-                                                  rnn_activation='tanh',
-                                                  cnn_model=InceptionV3,
-                                                  optimizer=RMSprop,
-                                                  reg_l1=None,
-                                                  reg_l2=None,
-                                                  num_word=None)
+    image_captioning_model = ImageCaptioningModel(rnn_mode='lstm',
+                                                 drop_rate=0.0,
+                                                 hidden_dim=3,
+                                                 rnn_state_size=226,
+                                                 embedding_size=512,
+                                                 rnn_activation='tanh',
+                                                 cnn_model=InceptionV3,
+                                                 optimizer=RMSprop,
+                                                 initializer='random_uniform',
+                                                 learning_rate=0.001,
+                                                 reg_l1=None,
+                                                 reg_l2=None,
+                                                 num_word=10000,
+                                                 is_trainable=False,
+                                                 metrics=None,
+                                                 loss='categorical_crossentropy')
 
-    ckpt_path = './checkpoint/weights.hdf5'
+    ckpt_path = None
 
-    image_captioning_model.build_model()
+    image_captioning_model.build()
     decoder_model = image_captioning_model.image_captioning_model
 
     if ckpt_path:
         decoder_model.load_weights(ckpt_path)
 
 
-    decoder_model.fit_generator(generator=generator,
+    decoder_model.fit_generator(generator=generator(image_data_path, caption_path, batch_size),
                                 steps_per_epoch=steps_per_epoch,
                                 epochs=20,
                                 callbacks=callback('checkpoint.keras', './logs/'))
+
+
+if __name__ == '__main__':
+    run()
+
 '''
 https://keras.io/models/model/#fit_generator
 
