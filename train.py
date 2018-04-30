@@ -132,22 +132,23 @@ def predict(filename):
 
     token_int = 0
 
+    output = []
+    '''
     x_data = \
         {
             'input_1': image_batch,
             'decoder_input': decoder_input
         }
     decoder_output = decoder_model.predict(x_data)
-
-    output = []
+    
     for i in range(len(decoder_output[0])):
         token = np.argmax(decoder_output[0][i])
         output.append(token)
     print(output)
+    '''
 
     count_tokens = 0
 
-    '''
     while token_int != 2 and count_tokens < seq_length:
         # Update the input-sequence to the decoder
         # with the last token that was sampled.
@@ -194,12 +195,12 @@ def predict(filename):
 
         # Increment the token-counter.
         count_tokens += 1
-    '''
+
     # print(image_batch.shape)
     print(output)
 
 
 if __name__ == '__main__':
-    # predict(['./flickr8k/Flicker8k_Dataset/667626_18933d713e.jpg'])
-    run()
+    predict(['./flickr8k/Flicker8k_Dataset/667626_18933d713e.jpg'])
+    # run()
 
