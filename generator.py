@@ -26,6 +26,7 @@ def generator(img_dir, cap_path, batch_size):
     preprocessor.fit_on_captions(all_captions)
 
     image_files = list_pictures(img_dir)
+
     image_processor = ImagePreprocessor(is_training=True, img_size=(299, 299))
 
     global img_array
@@ -73,7 +74,7 @@ class ImgSequence(Sequence):
 
         cap_padded = pad_sequences(cap_input_data, maxlen=max_len, padding='post', truncating='post')
 
-        cap_input_data = cap_padded
+        cap_input_data = cap_padded[:, 0:-1]
         # output_data = cap_padded[:, 1:]
 
         len_cap = [len(t) for t in output_data]
@@ -81,7 +82,7 @@ class ImgSequence(Sequence):
 
         cap_padded = pad_sequences(output_data, maxlen=max_len, padding='post', truncating='post')
 
-        output_data = cap_padded
+        output_data = cap_padded[:, 1:]
 
         x_data = \
             {
@@ -103,5 +104,5 @@ if __name__ == '__main__':
     for test in sequence:
         x_data, y_data = test
 
-        print(y_data['decoder_output'])
+        print(x_data['decoder_input'].shape)
         break
