@@ -3,3 +3,9 @@
 /coco
 /flickr8k
 /flickr30k
+.floydexpt
+.floydignore
+.idea/
+venv/
+__pycache__/
+*/__pycache__
