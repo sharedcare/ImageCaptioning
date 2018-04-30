@@ -5,6 +5,7 @@ from keras.preprocessing.image import list_pictures
 from keras.utils import Sequence
 import numpy as np
 import os
+from pprint import pformat
 from keras.preprocessing.sequence import pad_sequences
 
 
@@ -99,10 +100,17 @@ class ImgSequence(Sequence):
 
 
 if __name__ == '__main__':
-    sequence = generator('./flickr8k/Flicker8k_Dataset/', './flickr8k/dataset.json', 3)
+    sequence = generator('./flickr8k/Flicker8k_Dataset/', './flickr8k/dataset.json', 1)
 
     for test in sequence:
         x_data, y_data = test
 
-        print(x_data['decoder_input'].shape)
+        output = []
+        decoder_input = x_data['decoder_input']
+        print(decoder_input.shape)
+        print(decoder_input)
+        for i in range(len(y_data['decoder_output'][0])):
+            token = np.argmax(y_data['decoder_output'][0][i])
+            output.append(token)
+        print(output)
         break

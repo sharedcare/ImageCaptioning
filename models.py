@@ -81,9 +81,9 @@ class ImageCaptioningModel(object):
         return self._image_captioning_model
 
     def _cell(self):
-        if self._rnn_mode == 'gru' or 'GRU':
+        if self._rnn_mode == 'gru':
             cell = GRU
-        elif self._rnn_mode == 'lstm' or 'LSTM':
+        elif self._rnn_mode == 'lstm':
             cell = LSTM
         else:
             raise ValueError('rnn_mode must be lstm or gru')
@@ -139,7 +139,7 @@ class ImageCaptioningModel(object):
         input_ = decoder_input
 
         for _ in range(self._hidden_dim):
-            input_ = LSTM(units=self._rnn_state_size,
+            input_ = self._cell()(units=self._rnn_state_size,
                                     dropout=self._drop_rate,
                                     recurrent_dropout=self._drop_rate,
                                     return_sequences=True,
