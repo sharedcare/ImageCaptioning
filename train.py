@@ -5,6 +5,7 @@ from keras.optimizers import RMSprop
 from keras.metrics import mae, categorical_accuracy
 from keras.losses import categorical_crossentropy
 from keras.preprocessing.image import list_pictures
+from keras.callbacks import ModelCheckpoint
 
 from models import ImageCaptioningModel
 from callbacks import callback
@@ -49,26 +50,30 @@ def run():
     steps_per_epoch = total_seq // batch_size
 
     image_captioning_model = ImageCaptioningModel(rnn_mode='lstm',
-                                                 drop_rate=0.0,
+                                                 drop_rate=0.1,
                                                  hidden_dim=3,
-                                                 rnn_state_size=226,
+                                                 rnn_state_size=256,
                                                  embedding_size=512,
                                                  rnn_activation='tanh',
                                                  cnn_model=InceptionV3,
                                                  optimizer=RMSprop,
                                                  initializer='random_uniform',
                                                  learning_rate=0.001,
-                                                 reg_l1=None,
-                                                 reg_l2=None,
+                                                 reg_l1=0.001,
+                                                 reg_l2=0.001,
                                                  num_word=8387,
                                                  is_trainable=False,
                                                  metrics=None,
                                                  loss='categorical_crossentropy')
 
+    save_path = 'model.h5'
+
+
     ckpt_path = None
 
     image_captioning_model.build()
     decoder_model = image_captioning_model.image_captioning_model
+    decoder_model.save(save_path)
 
     if ckpt_path:
         decoder_model.load_weights(ckpt_path)

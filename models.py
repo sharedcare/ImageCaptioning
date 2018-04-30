@@ -132,8 +132,6 @@ class ImageCaptioningModel(object):
                                       name='decoder_embedding')(decoder_input)
         self._seq_embedding = decoder_embedding
         self._seq_input = decoder_input
-        print(decoder_embedding.shape)
-        print(decoder_input.shape)
         return decoder_input, decoder_embedding
 
     def _build_decoder_model(self, decoder_input):
@@ -165,7 +163,6 @@ class ImageCaptioningModel(object):
         '''
         image_output = RepeatVector(1)(self._image_embedding)
         decoder_input = concatenate([image_output, self._seq_embedding], axis=1)
-        print(decoder_input.shape)
         decoder_output = self._build_decoder_model(decoder_input)
 
         # Model(inputs=image_input,
@@ -188,7 +185,7 @@ if __name__ == '__main__':
     image_captioning_model = ImageCaptioningModel(rnn_mode='lstm',
                                                  drop_rate=0.0,
                                                  hidden_dim=3,
-                                                 rnn_state_size=226,
+                                                 rnn_state_size=256,
                                                  embedding_size=512,
                                                  rnn_activation='tanh',
                                                  cnn_model=InceptionV3,
