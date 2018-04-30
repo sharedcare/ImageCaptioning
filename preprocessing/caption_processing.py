@@ -22,6 +22,7 @@ https://github.com/danieljl/keras-image-captioning/blob/master/keras_image_capti
 
 
 class CaptionPreprocessor(object):
+    SOS_TOKEN = '<sos>'
     EOS_TOKEN = '<eos>'
 
     def __init__(self, rare_words_handling=None, words_min_occur=None):
@@ -36,7 +37,7 @@ class CaptionPreprocessor(object):
         return sorted(word_index, key=word_index.get)
 
     def _add_eos(self, captions):
-        return map(lambda x: x + ' ' + self.EOS_TOKEN, captions)
+        return map(lambda x: self.SOS_TOKEN + ' ' + x + ' ' + self.EOS_TOKEN, captions)
 
     def _caption_lengths(self, captions_output):
         one_hot_sum = captions_output.sum(axis=2)
@@ -132,4 +133,7 @@ if __name__ == '__main__':
     batch = preprocessor.preprocess_batch(encoded_captions)
 
     vocabs = preprocessor.vocabs
+
+    print(batch)
+    print(vocabs)
 
