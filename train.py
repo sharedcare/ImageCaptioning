@@ -196,7 +196,6 @@ def predict(filename):
         count_tokens += 1
     '''
     # print(image_batch.shape)
-    print(output)
 
 if __name__ == '__main__':
     predict(['./flickr8k/Flicker8k_Dataset/667626_18933d713e.jpg'])
