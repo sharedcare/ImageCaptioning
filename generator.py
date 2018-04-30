@@ -5,7 +5,6 @@ from keras.preprocessing.image import list_pictures
 from keras.utils import Sequence
 import numpy as np
 import os
-from pprint import pformat
 from keras.preprocessing.sequence import pad_sequences
 
 
