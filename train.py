@@ -70,7 +70,7 @@ def run():
                                                   learning_rate=0.001,
                                                   reg_l1=0.001,
                                                   reg_l2=0.001,
-                                                  num_word=8387,
+                                                  num_word=8388,
                                                   is_trainable=False,
                                                   metrics=None,
                                                   loss='categorical_crossentropy')
@@ -108,7 +108,7 @@ def predict(filename):
                                                  learning_rate=0.001,
                                                  reg_l1=0.001,
                                                  reg_l2=0.001,
-                                                 num_word=8387,
+                                                 num_word=8388,
                                                  is_trainable=False,
                                                  metrics=None,
                                                  loss='categorical_crossentropy')
@@ -198,7 +198,8 @@ def predict(filename):
     # print(image_batch.shape)
     print(output)
 
+
 if __name__ == '__main__':
-    predict(['./flickr8k/Flicker8k_Dataset/667626_18933d713e.jpg'])
-    # run()
+    # predict(['./flickr8k/Flicker8k_Dataset/667626_18933d713e.jpg'])
+    run()
 
