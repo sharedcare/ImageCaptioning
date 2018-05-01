@@ -8,6 +8,8 @@ from callbacks import callback
 from keras.applications.inception_v3 import InceptionV3
 from keras.optimizers import RMSprop
 from keras.preprocessing import sequence as keras_seq
+import os
+from preprocessing.image_processing import ImagePreprocessor
 
 
 class TokenizerWrap(Tokenizer):
@@ -147,7 +149,15 @@ def get_random_caption_tokens(idx):
     return result
 
 
-img_array = np.load('./img_array.npy')
+global img_array
+if os.path.exists('./img_array.npy'):
+    img_array = np.load('./img_array.npy')
+else:
+    print("Preprocessing images...\n")
+    image_processor = ImagePreprocessor(is_training=True, img_size=(299, 299))
+    img_array = image_processor.process_images(image_files)
+    print("\nImages preprocessed.")
+    np.save('./img_array', img_array)
 
 
 def batch_generator(batch_size):
@@ -217,6 +227,13 @@ def batch_generator(batch_size):
         captions_input = captions_decreased
         captions_output = captions_one_hot_shifted
 
+        captions_output = pad_sequences(captions_output,
+                                        maxlen=max_tokens,
+                                        padding='post',
+                                        truncating='post')
+
+        decoder_output_data = captions_output
+
         # Dict for the input-data. Because we have
         # several inputs, we use a named dict to
         # ensure that the data is assigned correctly.
@@ -229,15 +246,13 @@ def batch_generator(batch_size):
         # Dict for the output-data.
         y_data = \
             {
-                'decoder_output': captions_output
+                'decoder_output': decoder_output_data
             }
 
-        # print(y_data['decoder_output'].shape)
+        print(x_data['decoder_input'].shape, y_data['decoder_output'].shape)
 
         yield (x_data, y_data)
 
-
-generator = batch_generator(batch_size=35)
 
 image_data_path = './flickr8k/Flicker8k_Dataset/'
 
@@ -247,13 +262,15 @@ images = list_pictures(image_data_path)
 
 num_image = len(images)
 
-batch_size = 35
+batch_size = 100
 
 num_seq_per_image = 5
 
 total_seq = num_image * num_seq_per_image
 
 steps_per_epoch = total_seq // batch_size
+
+generator = batch_generator(batch_size=batch_size)
 
 image_captioning_model = ImageCaptioningModel(rnn_mode='lstm',
                                               drop_rate=0.1,
@@ -267,7 +284,7 @@ image_captioning_model = ImageCaptioningModel(rnn_mode='lstm',
                                               learning_rate=0.001,
                                               reg_l1=0.001,
                                               reg_l2=0.001,
-                                              num_word=3796,
+                                              num_word=8388,
                                               is_trainable=False,
                                               metrics=None,
                                               loss='categorical_crossentropy')
