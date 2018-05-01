@@ -86,7 +86,8 @@ class ImgSequence(Sequence):
 
         x_data = \
             {
-                'decoder_input': np.array(cap_input_data),
+                # 'decoder_input': np.array(cap_input_data),
+                'decoder_input': np.zeros(shape=np.array(cap_input_data).shape, dtype=np.int),
                 'input_1': img_input_data
             }
 

@@ -14,7 +14,7 @@ def callback(path_checkpoint=None, log_dir=None):
     if path_checkpoint is not None:
         checkpoint = ModelCheckpoint(filepath=path_checkpoint,
                                      verbose=1,
-                                     save_weights_only=True)
+                                     save_weights_only=False)
         callbacks.append(checkpoint)
 
     if log_dir is not None:

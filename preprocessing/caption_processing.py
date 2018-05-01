@@ -36,6 +36,10 @@ class CaptionPreprocessor(object):
         word_index = self._tokenizer.word_index
         return sorted(word_index, key=word_index.get)
 
+    @property
+    def word_index(self):
+        return self._tokenizer.word_index
+
     def _add_eos(self, captions):
         return map(lambda x: self.SOS_TOKEN + ' ' + x + ' ' + self.EOS_TOKEN, captions)
 
