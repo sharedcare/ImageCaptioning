@@ -77,7 +77,6 @@ def run():
 
     save_path = 'model.h5'
 
-
     ckpt_path = None
 
     image_captioning_model.build()
@@ -88,9 +87,12 @@ def run():
 
     decoder_model.fit_generator(generator=generator(image_data_path, caption_path, batch_size),
                                 steps_per_epoch=steps_per_epoch,
-                                epochs=20,
+                                epochs=5,
                                 callbacks=callback('checkpoint.h5', './logs/'))
     decoder_model.save(save_path)
+
+    decoder_model.save(save_path)
+
 
 def predict(filename):
     seq_length = 20
@@ -148,13 +150,14 @@ def predict(filename):
     '''
 
     count_tokens = 0
-    fh = open('Output.txt', 'w')
     while token_int != 3 and count_tokens < seq_length:
         # Update the input-sequence to the decoder
         # with the last token that was sampled.
         # In the first iteration this will set the
         # first element to the start-token.
         decoder_input[0, count_tokens] = token_int
+
+        print(decoder_input)
 
         # Wrap the input-data in a dict for clarity and safety,
         # so we are sure we input the data in the right order.
@@ -175,9 +178,7 @@ def predict(filename):
 
         # Input this data to the decoder and get the predicted output.
         decoder_output = decoder_model.predict(x_data)
-        print(decoder_output.shape)
-        # print(decoder_output)
-        fh.write(str(decoder_output))
+
         #print(decoder_output)
         # Get the last predicted token as a one-hot encoded array.
         # Note that this is not limited by softmax, but we just
@@ -199,10 +200,9 @@ def predict(filename):
 
     # print(image_batch.shape)
     print(output)
-    fh.close()
+
 
 
 if __name__ == '__main__':
-    predict(['./flickr8k/Flicker8k_Dataset/667626_18933d713e.jpg'])
-    # run()
-
+    # predict(['./flickr8k/Flicker8k_Dataset/667626_18933d713e.jpg'])
+    run()
