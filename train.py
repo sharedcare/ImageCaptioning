@@ -63,7 +63,7 @@ def run():
                                                   hidden_dim=3,
                                                   rnn_state_size=256,
                                                   embedding_size=512,
-                                                  rnn_activation='tanh',
+                                                  rnn_activation='linear',
                                                   cnn_model=InceptionV3,
                                                   optimizer=RMSprop,
                                                   initializer='random_uniform',
@@ -89,6 +89,7 @@ def run():
                                 steps_per_epoch=steps_per_epoch,
                                 epochs=5,
                                 callbacks=callback('checkpoint.h5', './logs/'))
+    decoder_model.save(save_path)
 
     decoder_model.save(save_path)
 
@@ -103,7 +104,7 @@ def predict(filename):
                                                  hidden_dim=3,
                                                  rnn_state_size=256,
                                                  embedding_size=512,
-                                                 rnn_activation='tanh',
+                                                 rnn_activation='linear',
                                                  cnn_model=InceptionV3,
                                                  optimizer=RMSprop,
                                                  initializer='random_uniform',
@@ -117,10 +118,9 @@ def predict(filename):
 
     image_captioning_model.build()
     decoder_model = image_captioning_model.image_captioning_model
-    # decoder_model.load_weights(ckpt_path)
-    '''
-
+'''
     decoder_model = load_model(model_path)
+    # model = load_model(model_path)
 
     preprocessor = ImagePreprocessor(is_training=False)
     if type(filename) == str:
@@ -152,7 +152,6 @@ def predict(filename):
     '''
 
     count_tokens = 0
-
     while token_int != 3 and count_tokens < seq_length:
         # Update the input-sequence to the decoder
         # with the last token that was sampled.
@@ -182,13 +181,12 @@ def predict(filename):
 
         # Input this data to the decoder and get the predicted output.
         decoder_output = decoder_model.predict(x_data)
-        #print(decoder_output.shape)
-        #print(decoder_output)
+
         #print(decoder_output)
         # Get the last predicted token as a one-hot encoded array.
         # Note that this is not limited by softmax, but we just
         # need the index of the largest element so it doesn't matter.
-        token_onehot = decoder_output[0, count_tokens, :]
+        token_onehot = decoder_output[0, count_tokens, 1:]
 
         # Convert to an integer-token.
         token_int = np.argmax(token_onehot)
@@ -205,6 +203,7 @@ def predict(filename):
 
     # print(image_batch.shape)
     print(output)
+
 
 
 if __name__ == '__main__':
