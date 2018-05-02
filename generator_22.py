@@ -65,7 +65,6 @@ def train():
 
             return tokens
 
-
     def flatten(captions_listlist):
         captions_list = [caption
                          for captions_list in captions_listlist
@@ -73,10 +72,8 @@ def train():
 
         return captions_list
 
-
     mark_start = 'ssss '
     mark_end = ' eeee'
-
 
     def mark_captions(captions_listlist):
         captions_marked = [[mark_start + caption + mark_end
@@ -84,7 +81,6 @@ def train():
                            for captions_list in captions_listlist]
 
         return captions_marked
-
 
     fh = open('./flickr8k/dataset.json')
     raw_data = fh.read()
@@ -122,7 +118,6 @@ def train():
 
     tokens_train = tokenizer.captions_to_tokens(captions_train_marked)
 
-
     def get_random_caption_tokens(idx):
         """
         Given a list of indices for images in the training-set,
@@ -151,7 +146,6 @@ def train():
 
         return result
 
-
     global img_array
     if os.path.exists('./img_array.npy'):
         img_array = np.load('./img_array.npy')
@@ -161,7 +155,6 @@ def train():
         img_array = image_processor.process_images(image_files)
         print("\nImages preprocessed.")
         np.save('./img_array', img_array)
-
 
     def batch_generator(batch_size):
         """
@@ -235,7 +228,7 @@ def train():
                                             padding='post',
                                             truncating='post')
 
-            decoder_output_data = captions_output
+            decoder_output_data = captions_output[:, 1:]
 
             # Dict for the input-data. Because we have
             # several inputs, we use a named dict to
@@ -303,8 +296,6 @@ def train():
     
     '''
     save_path = 'model22.h5'
-
-
 
     decoder_model.fit_generator(generator=generator,
                                 steps_per_epoch=steps_per_epoch,
