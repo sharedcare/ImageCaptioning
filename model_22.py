@@ -26,10 +26,12 @@ def image_caption_model(word_size):
     transfer_layer = image_model.get_layer('fc2')
     image_model_transfer = Model(inputs=image_model.input,
                              outputs=transfer_layer.output)
+    '''
     img_size = K.int_shape(image_model.input)[1:3]
     print(img_size)
     transfer_values_size = K.int_shape(transfer_layer.output)[1]
     print(transfer_values_size)
+    '''
 
     decoder_transfer_map = Dense(512,
                                  activation='tanh',
