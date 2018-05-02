@@ -95,8 +95,9 @@ def run():
 
 def predict(filename):
     seq_length = 30
-    # model_path = 'model.h5'
+    model_path = 'model.h5'
     ckpt_path = 'checkpoint.h5'
+    '''
     image_captioning_model = ImageCaptioningModel(rnn_mode='lstm',
                                                  drop_rate=0.1,
                                                  hidden_dim=3,
@@ -116,8 +117,10 @@ def predict(filename):
 
     image_captioning_model.build()
     decoder_model = image_captioning_model.image_captioning_model
-    decoder_model.load_weights(ckpt_path)
-    # model = load_model(model_path)
+    # decoder_model.load_weights(ckpt_path)
+    '''
+
+    decoder_model = load_model(model_path)
 
     preprocessor = ImagePreprocessor(is_training=False)
     if type(filename) == str:
@@ -155,6 +158,7 @@ def predict(filename):
         # with the last token that was sampled.
         # In the first iteration this will set the
         # first element to the start-token.
+        # decoder_input[0, count_tokens] = token_int
         decoder_input[0, count_tokens] = token_int
 
         print(decoder_input)
@@ -204,5 +208,5 @@ def predict(filename):
 
 
 if __name__ == '__main__':
-    # predict(['./flickr8k/Flicker8k_Dataset/667626_18933d713e.jpg'])
-    run()
+    predict(['./flickr8k/Flicker8k_Dataset/3452411712_5b42d2a1b5.jpg'])
+    # run()
