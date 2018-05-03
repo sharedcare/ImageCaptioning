@@ -204,31 +204,10 @@ def train():
             decoder_input_data = tokens_padded[:, 0:-1]
             decoder_output_data = tokens_padded[:, 1:]
 
-            captions = keras_seq.pad_sequences(tokens, padding='post')
-            captions_extended1 = keras_seq.pad_sequences(captions,
-                                                         maxlen=captions.shape[-1] + 1,
-                                                         padding='post')
-            captions_one_hot = list(map(tokenizer.sequences_to_matrix,
-                                        np.expand_dims(captions_extended1, -1)))
+            captions_one_hot = list(map(tokenizer.sequences_to_matrix, np.expand_dims(decoder_output_data, -1)))
             captions_one_hot = np.array(captions_one_hot, dtype='int')
 
-            # Decrease/shift word index by 1.
-            # Shifting `captions_one_hot` makes the padding word
-            # (index=0, encoded=[1, 0, ...]) encoded all zeros ([0, 0, ...]),
-            # so its cross entropy loss will be zero.
-            captions_decreased = captions.copy()
-            captions_decreased[captions_decreased > 0] -= 1
-            captions_one_hot_shifted = captions_one_hot[:, :, 1:]
-
-            captions_input = captions_decreased
-            captions_output = captions_one_hot_shifted
-
-            captions_output = pad_sequences(captions_output,
-                                            maxlen=max_tokens,
-                                            padding='post',
-                                            truncating='post')
-
-            decoder_output_data = captions_output[:, 1:]
+            decoder_output_data = captions_one_hot[:, :, :-1]
 
             # Dict for the input-data. Because we have
             # several inputs, we use a named dict to
@@ -258,7 +237,7 @@ def train():
 
     num_image = len(images)
 
-    batch_size = 100
+    batch_size = 35
 
     num_seq_per_image = 5
 
@@ -268,7 +247,7 @@ def train():
 
     generator = batch_generator(batch_size=batch_size)
 
-    decoder_model = image_caption_model(word_size=8388)
+    decoder_model = image_caption_model(word_size=len(tokenizer.word_counts))
 
     decoder_model.compile(optimizer=RMSprop(lr=1e-3),
                           loss='categorical_crossentropy')
@@ -310,7 +289,7 @@ def predict(image_path, max_tokens=30):
 
     decoder_model = load_model(model_path)
 
-    preprocessor = ImagePreprocessor(is_training=False)
+    preprocessor = ImagePreprocessor(is_training=False, img_size=(224, 224))
 
     if type(image_path) == str:
         image = preprocessor.process_image(image_path)
