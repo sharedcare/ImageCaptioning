@@ -10,8 +10,10 @@ from keras.optimizers import RMSprop
 from model_22 import image_caption_model
 from keras.preprocessing import sequence as keras_seq
 import os
+import tensorflow as tf
 from preprocessing.image_processing import ImagePreprocessor
 from keras.models import load_model
+from losses import sparse_cross_entropy
 
 
 def train():
@@ -248,9 +250,11 @@ def train():
     generator = batch_generator(batch_size=batch_size)
 
     decoder_model = image_caption_model(word_size=len(tokenizer.word_counts))
+    decoder_target = tf.placeholder(dtype='int32', shape=(None, None))
 
     decoder_model.compile(optimizer=RMSprop(lr=1e-3),
-                          loss='categorical_crossentropy')
+                          loss=sparse_cross_entropy,
+                          target_tensors=[decoder_target])
 
     '''
     image_captioning_model = ImageCaptioningModel(rnn_mode='lstm',

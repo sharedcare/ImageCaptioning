@@ -20,6 +20,7 @@ import os
 import numpy as np
 
 from losses import sparse_cross_entropy as loss
+from keras.utils import plot_model
 
 def image_caption_model(word_size):
     image_model = VGG16(weights='imagenet', include_top=True)
@@ -76,4 +77,5 @@ def image_caption_model(word_size):
 
 if __name__ == '__main__':
     model = image_caption_model(8000)
+    plot_model(model, to_file='model_22.png')
     model.summary()
