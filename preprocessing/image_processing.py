@@ -10,6 +10,7 @@ from keras.preprocessing.image import load_img, img_to_array
 from keras.applications.inception_v3 import preprocess_input
 from tqdm import tqdm
 from keras.preprocessing.image import list_pictures
+import h5py
 
 
 class ImagePreprocessor(object):
@@ -57,12 +58,38 @@ class ImagePreprocessor(object):
         pbar.update(5)
         return np.array(processed_img)
 
+    def save_images(self, image_dir):
+        image_files = list_pictures(image_dir)
+        print("Preprocessing images...\n")
+        pbar = tqdm(total=len(image_files))
+        h5f = h5py.File('../tmp/img_array.h5', 'w')
+        img_cache = []
+        for image_file in image_files:
+            pbar.update()
+            array = image_processor.process_image(image_file)
+            img_cache.append((image_file.split('/')[-1], array))
+
+        h5f.create_dataset('img_data', data=img_cache)
+        h5f.close()
+        print("\nImages preprocessed.")
+
+    def get_img_cache(self):
+        h5f = h5py.File('../tmp/img_array.h5', 'r')
+        img_cache = h5f['img_data'][:]
+        h5f.close()
+        return img_cache
 
 if __name__ == '__main__':
     image_processor = ImagePreprocessor(is_training=True, img_size=(299, 299))
     data_dir = "../flickr8k/Flicker8k_Dataset/"
     image_files = list_pictures(data_dir)
+
+    '''
     print("Preprocessing images...\n")
     array = image_processor.process_images(image_files)
     print("\nImages preprocessed.")
     print(array.shape)
+    
+    image_processor.save_images(data_dir)
+
+    '''
