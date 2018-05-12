@@ -24,6 +24,7 @@ https://github.com/danieljl/keras-image-captioning/blob/master/keras_image_capti
 class CaptionPreprocessor(object):
     SOS_TOKEN = '<sos>'
     EOS_TOKEN = '<eos>'
+    PAD_TOKEN = '<pad>'
 
     def __init__(self, rare_words_handling=None, words_min_occur=None):
         self._tokenizer = Tokenizer()
@@ -39,6 +40,10 @@ class CaptionPreprocessor(object):
     @property
     def word_index(self):
         return self._tokenizer.word_index
+
+    @property
+    def tokenizer(self):
+        return self._tokenizer
 
     def _add_eos(self, captions):
         return map(lambda x: self.SOS_TOKEN + ' ' + x + ' ' + self.EOS_TOKEN, captions)
