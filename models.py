@@ -7,7 +7,8 @@
 # ==============================================================================
 from keras.applications.inception_v3 import InceptionV3
 from keras.applications.vgg16 import VGG16
-from keras.layers import Input, BatchNormalization, RepeatVector, Embedding, Dense, GRU, LSTM, TimeDistributed, Dropout, concatenate, add
+from keras.layers import Input, BatchNormalization, RepeatVector, Embedding, Dense, GRU, LSTM, TimeDistributed, Dropout, \
+    concatenate, add, Masking
 from keras.models import Model
 from keras import backend as K
 from keras.regularizers import l1, l2, l1_l2
@@ -17,10 +18,8 @@ from keras.utils import plot_model
 
 import tensorflow as tf
 
-from losses import sparse_cross_entropy as loss
 
 class ImageCaptioningModel(object):
-
     def __init__(self,
                  max_seq_length,
                  rnn_mode='lstm',
@@ -87,8 +86,6 @@ class ImageCaptioningModel(object):
         # Output keras model
         self._image_captioning_model = None
 
-
-
     @property
     def image_captioning_model(self):
         return self._image_captioning_model
@@ -153,12 +150,15 @@ class ImageCaptioningModel(object):
 
     def text_embedding(self):
         text_input = Input(shape=(self._max_seq_length, self._word_size), name='text_input')
+        text_mask = Masking(mask_value=0.0, name='text_mask')(text_input)
         text_embedding = TimeDistributed(Dense(units=self._embedding_size,
                                                kernel_regularizer=self._regularizer,
                                                kernel_initializer=self._initializer,
-                                               name='text_embedding'))(text_input)
+                                               name='text_embedding'))(text_mask)
+
+        text_dropout = Dropout(self._drop_rate, name='text_dropout')(text_embedding)
         self._text_input = text_input
-        self._text_embedding = text_embedding
+        self._text_embedding = text_dropout
 
     def build_decoder_model(self):
 
@@ -174,18 +174,19 @@ class ImageCaptioningModel(object):
         input_ = decoder_input
 
         for _ in range(self._hidden_dim):
+            input_ = BatchNormalization()(input_)
             input_ = self._cell()(units=self._rnn_state_size,
-                                  dropout=self._drop_rate,
-                                  recurrent_dropout=self._drop_rate,
                                   return_sequences=True,
+                                  recurrent_regularizer=self._regularizer,
                                   kernel_regularizer=self._regularizer,
+                                  bias_regularizer=self._regularizer,
                                   kernel_initializer=self._initializer,
-                                  implementation=2)(input_, initial_state=initial_state)
+                                  implementation=1)(input_, initial_state=initial_state)
 
         self._decoder_output = TimeDistributed(Dense(self._word_size,
                                                      kernel_regularizer=self._regularizer,
                                                      activation=self._rnn_activation),
-                                                     name='output')(input_)
+                                               name='output')(input_)
 
     def build_model(self):
 
@@ -205,23 +206,23 @@ class ImageCaptioningModel(object):
 
 if __name__ == '__main__':
     image_captioning_model = ImageCaptioningModel(30,
-                                                 rnn_mode='lstm',
-                                                 drop_rate=0.0,
-                                                 hidden_dim=3,
-                                                 rnn_state_size=256,
-                                                 embedding_size=512,
-                                                 rnn_activation='softmax',
-                                                 cnn_model='inception_v3',
-                                                 optimizer=RMSprop,
-                                                 initializer='random_uniform',
-                                                 learning_rate=0.001,
-                                                 mode=1,
-                                                 reg_l1=None,
-                                                 reg_l2=None,
-                                                 num_word=2000,
-                                                 is_trainable=False,
-                                                 metrics=None,
-                                                 loss='categorical_crossentropy')
+                                                  rnn_mode='lstm',
+                                                  drop_rate=0.0,
+                                                  hidden_dim=3,
+                                                  rnn_state_size=256,
+                                                  embedding_size=512,
+                                                  rnn_activation='softmax',
+                                                  cnn_model='inception_v3',
+                                                  optimizer=RMSprop,
+                                                  initializer='random_uniform',
+                                                  learning_rate=0.001,
+                                                  mode=1,
+                                                  reg_l1=None,
+                                                  reg_l2=None,
+                                                  num_word=2000,
+                                                  is_trainable=False,
+                                                  metrics=None,
+                                                  loss='categorical_crossentropy')
 
     image_captioning_model.build_model()
     decoder_model = image_captioning_model.image_captioning_model

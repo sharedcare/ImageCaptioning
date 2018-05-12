@@ -58,40 +58,42 @@ def run():
 
     steps_per_epoch = total_seq // batch_size
 
-    image_captioning_model = ImageCaptioningModel(rnn_mode='lstm',
-                                                  drop_rate=0.1,
-                                                  hidden_dim=3,
-                                                  rnn_state_size=256,
-                                                  embedding_size=512,
-                                                  rnn_activation='linear',
-                                                  cnn_model=InceptionV3,
-                                                  optimizer=RMSprop,
+    image_captioning_model = ImageCaptioningModel(generator.MAX_TOKEN_LENGTH,
+                                                  rnn_mode='lstm',
+                                                  drop_rate=0.5,
+                                                  hidden_dim=1,
+                                                  rnn_state_size=128,
+                                                  embedding_size=128,
+                                                  rnn_activation='softmax',
+                                                  cnn_model='inception_v3',
+                                                  optimizer=Adam,
                                                   initializer='random_uniform',
-                                                  learning_rate=0.001,
-                                                  reg_l1=0.001,
-                                                  reg_l2=0.001,
-                                                  num_word=8388,
+                                                  learning_rate=1e-3,
+                                                  mode=1,
+                                                  reg_l1=1e-7,
+                                                  reg_l2=1e-7,
+                                                  num_word=generator.VOCABULARY_SIZE,
                                                   is_trainable=False,
-                                                  metrics=None,
+                                                  metrics=['accuracy'],
                                                   loss='categorical_crossentropy')
+
+    image_captioning_model.build_model()
+    model = image_captioning_model.image_captioning_model
 
     save_path = 'model.h5'
 
     ckpt_path = None
 
-    image_captioning_model.build()
-    decoder_model = image_captioning_model.image_captioning_model
 
     if ckpt_path:
-        decoder_model.load_weights(ckpt_path)
+        model.load_weights(ckpt_path)
 
-    decoder_model.fit_generator(generator=generator(image_data_path, caption_path, batch_size),
-                                steps_per_epoch=steps_per_epoch,
-                                epochs=5,
-                                callbacks=callback('checkpoint.h5', './logs/'))
-    decoder_model.save(save_path)
+    model.fit_generator(generator=generator(image_data_path, caption_path, batch_size),
+                        steps_per_epoch=steps_per_epoch,
+                        epochs=5,
+                        callbacks=callback('checkpoint.h5', './logs/'))
 
-    decoder_model.save(save_path)
+    model.save(save_path)
 
 
 def predict(filename):
