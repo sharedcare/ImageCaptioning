@@ -10,7 +10,7 @@ import numpy as np
 
 from keras.applications.inception_v3 import InceptionV3
 from keras.models import load_model
-from keras.optimizers import RMSprop
+from keras.optimizers import RMSprop, Adam
 from keras.metrics import mae, categorical_accuracy
 from keras.losses import categorical_crossentropy
 from keras.preprocessing.image import list_pictures
