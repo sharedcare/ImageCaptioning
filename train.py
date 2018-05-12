@@ -50,7 +50,7 @@ def run():
 
     num_image = len(images)
 
-    batch_size = 35
+    batch_size = 50
 
     num_seq_per_image = 5
 
@@ -58,10 +58,12 @@ def run():
 
     steps_per_epoch = total_seq // batch_size
 
-    image_captioning_model = ImageCaptioningModel(generator.MAX_TOKEN_LENGTH,
+    generator_func = generator(image_data_path, caption_path, batch_size)
+
+    image_captioning_model = ImageCaptioningModel(31,
                                                   rnn_mode='lstm',
                                                   drop_rate=0.5,
-                                                  hidden_dim=1,
+                                                  hidden_dim=3,
                                                   rnn_state_size=128,
                                                   embedding_size=128,
                                                   rnn_activation='softmax',
@@ -72,7 +74,7 @@ def run():
                                                   mode=1,
                                                   reg_l1=1e-7,
                                                   reg_l2=1e-7,
-                                                  num_word=generator.VOCABULARY_SIZE,
+                                                  num_word=len(generator_func.preprocessor.word_index) + 1,
                                                   is_trainable=False,
                                                   metrics=['accuracy'],
                                                   loss='categorical_crossentropy')
@@ -84,11 +86,10 @@ def run():
 
     ckpt_path = None
 
-
     if ckpt_path:
         model.load_weights(ckpt_path)
 
-    model.fit_generator(generator=generator(image_data_path, caption_path, batch_size),
+    model.fit_generator(generator=generator_func,
                         steps_per_epoch=steps_per_epoch,
                         epochs=5,
                         callbacks=callback('checkpoint.h5', './logs/'))
@@ -209,5 +210,5 @@ def predict(filename):
 
 
 if __name__ == '__main__':
-    predict(['./flickr8k/Flicker8k_Dataset/3452411712_5b42d2a1b5.jpg'])
-    # run()
+    # predict(['./flickr8k/Flicker8k_Dataset/3452411712_5b42d2a1b5.jpg'])
+    run()
