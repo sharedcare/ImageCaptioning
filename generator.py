@@ -8,7 +8,7 @@ import os
 from keras.preprocessing.sequence import pad_sequences
 
 
-def generator(img_dir, cap_path, batch_size):
+def generator(img_dir, cap_path, batch_size, max_len=30):
     fh = open(cap_path)
     raw_data = fh.read()
     data = json.loads(raw_data)
@@ -38,12 +38,12 @@ def generator(img_dir, cap_path, batch_size):
         print("\nImages preprocessed.")
         np.save('./img_array', img_array)
 
-    return ImgSequence(img_groups, image_files, img_array, batch_size, preprocessor)
+    return ImgSequence(img_groups, image_files, img_array, batch_size, preprocessor, max_len)
 
 
 class ImgSequence(Sequence):
-    def __init__(self, img_groups, image_files, img_array, batch_size, preprocessor):
-        self.img_groups, self.image_files, self.img_array = img_groups, image_files, img_array
+    def __init__(self, img_groups, image_files, img_array, batch_size, preprocessor, max_len):
+        self.img_groups, self.image_files, self.img_array, self.max_len = img_groups, image_files, img_array, max_len
         self.batch_size = batch_size
         self.preprocessor = preprocessor
 
@@ -53,47 +53,38 @@ class ImgSequence(Sequence):
     def __getitem__(self, idx):
         idx = np.random.randint(len(self.img_groups), size=self.batch_size)
 
-        cap_input_data = []
+        cap_data = []
         img_input_data = self.img_array[idx]
-        output_data = []
 
         for id in idx:
             img_file_name = self.image_files[id].split('/')[-1]
             captions = self.img_groups[img_file_name]
 
             encoded_captions = self.preprocessor.encode_captions(captions)
-            captions_input, captions_output = self.preprocessor.preprocess_batch(encoded_captions)
 
-            i = np.random.choice(len(captions_input))
+            i = np.random.choice(len(encoded_captions))
 
-            cap_input_data.append(captions_input[i])
-            output_data.append(captions_output[i])
+            cap_data.append(encoded_captions[i])
 
-        len_cap = [len(t) for t in cap_input_data]
-        max_len = np.max(len_cap)
+        cap_padded = pad_sequences(cap_data, maxlen=self.max_len+2, padding='post', truncating='post')
 
-        cap_padded = pad_sequences(cap_input_data, maxlen=max_len, padding='post', truncating='post')
+        new_cap = list(map(self.preprocessor.tokenizer.sequences_to_matrix, np.expand_dims(cap_padded, -1)))
 
-        cap_input_data = cap_padded[:, 0:-1]
-        # output_data = cap_padded[:, 1:]
+        cap_final = np.asarray(new_cap)
 
-        len_cap = [len(t) for t in output_data]
-        max_len = np.max(len_cap)
+        cap_input_data = cap_final[:, 0:-1, :]
 
-        cap_padded = pad_sequences(output_data, maxlen=max_len, padding='post', truncating='post')
-
-        output_data = cap_padded[:, 1:]
+        output_data = cap_final[:, 1:, :]
 
         x_data = \
             {
-                # 'decoder_input': np.array(cap_input_data),
-                'decoder_input': np.zeros(shape=np.array(cap_input_data).shape, dtype=np.int),
+                'text_input': cap_input_data,
                 'input_1': img_input_data
             }
 
         y_data = \
             {
-                'decoder_output': np.array(output_data).reshape(self.batch_size, len(output_data[0]), len(output_data[0][0]))
+                'output': output_data
             }
 
         return x_data, y_data
@@ -105,12 +96,5 @@ if __name__ == '__main__':
     for test in sequence:
         x_data, y_data = test
 
-        output = []
-        decoder_input = x_data['decoder_input']
-        print(decoder_input.shape)
-        print(decoder_input)
-        for i in range(len(y_data['decoder_output'][0])):
-            token = np.argmax(y_data['decoder_output'][0][i])
-            output.append(token)
-        print(output)
+        print(x_data, y_data)
         break
