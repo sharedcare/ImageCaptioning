@@ -83,6 +83,8 @@ class Run(object):
         self._generator = None
         self._image_captioning_model = None
 
+        self._model = None
+
     def _build_generator(self):
         generator_func = generator(self._image_path, self._caption_path, self._batch_size)
         self._generator = generator_func
@@ -139,7 +141,11 @@ class Run(object):
         model.save(save_path)
 
     def predict(self, filename):
-        model = load_model(self._model_path)
+        if not self._model:
+            model = load_model(self._model_path)
+            self._model = model
+        else:
+            model = self._model
 
         self._build_generator()
 
@@ -185,5 +191,14 @@ if __name__ == '__main__':
               config=CONFIG,
               model_path='model.h5',
               ckpt_path='checkpoint.h5')
-    run.train()
-    run.predict('./flickr8k/Flicker8k_Dataset/3452411712_5b42d2a1b5.jpg')
+    # run.train()
+
+    for image in os.listdir('./tests'):
+        file = './tests/' + image
+
+        if image == '.DS_Store':
+            continue
+
+        print(file)
+
+        run.predict(file)
