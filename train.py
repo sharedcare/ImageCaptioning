@@ -7,6 +7,7 @@
 # ==============================================================================
 import tensorflow as tf
 import numpy as np
+import matplotlib.pyplot as plt
 
 from keras.applications.inception_v3 import InceptionV3
 from keras.models import load_model
@@ -101,8 +102,12 @@ def run():
 
 def predict(filename):
     model_path = 'model.h5'
+    model = load_model(model_path)
+    image_data_path = './flickr8k/Flicker8k_Dataset/'
+    caption_path = './flickr8k/dataset.json'
+    batch_size = 50
 
-    decoder_model = load_model(model_path)
+    generator_func = generator(image_data_path, caption_path, batch_size)
 
     preprocessor = ImagePreprocessor(is_training=False)
     if type(filename) == str:
@@ -113,81 +118,35 @@ def predict(filename):
     else:
         raise ValueError('Input image name is not vaild')
 
-    decoder_input_shape = (1, 31)
-    decoder_input = np.zeros(shape=decoder_input_shape, dtype=np.int)
-
-    token_int = 2
+    text_input_shape = (1, 31, len(generator_func.preprocessor.word_index) + 1)
+    text_input = np.zeros(shape=text_input_shape)
+    start_token_id = generator_func.preprocessor.word_index['sos']
+    end_token_id = generator_func.preprocessor.word_index['eos']
+    text_input[0, 0, start_token_id] = 1
 
     output = []
-    '''
-    x_data = \
-        {
-            'input_1': image_batch,
-            'decoder_input': decoder_input
-        }
-    decoder_output = decoder_model.predict(x_data)
-    
-    for i in range(len(decoder_output[0])):
-        token = np.argmax(decoder_output[0][i])
-        output.append(token)
-    print(output)
-    '''
 
-    count_tokens = 0
-    while token_int != 3 and count_tokens < seq_length:
-        # Update the input-sequence to the decoder
-        # with the last token that was sampled.
-        # In the first iteration this will set the
-        # first element to the start-token.
-        # decoder_input[0, count_tokens] = token_int
-        decoder_input[0, count_tokens] = token_int
-
-        print(decoder_input)
-
-        # Wrap the input-data in a dict for clarity and safety,
-        # so we are sure we input the data in the right order.
-        x_data = \
+    for seq_index in range(31):
+        input_data = \
             {
                 'input_1': image_batch,
-                'decoder_input': decoder_input
+                'text_input': text_input
             }
+        predictions = model.predict(input_data) # Predict next word
+        word_id = np.argmax(predictions[0, seq_index, :])
+        if word_id == end_token_id:
+            print('eos')
+            break
+        text_input[0, seq_index + 1, word_id] = 1
+        word = generator_func.preprocessor.vocabs[word_id-1]
+        print(word)
+        output.append(word)
 
-        # Note that we input the entire sequence of tokens
-        # to the decoder. This wastes a lot of computation
-        # because we are only interested in the last input
-        # and output. We could modify the code to return
-        # the GRU-states when calling predict() and then
-        # feeding these GRU-states as well the next time
-        # we call predict(), but it would make the code
-        # much more complicated.
-
-        # Input this data to the decoder and get the predicted output.
-        decoder_output = decoder_model.predict(x_data)
-
-        #print(decoder_output)
-        # Get the last predicted token as a one-hot encoded array.
-        # Note that this is not limited by softmax, but we just
-        # need the index of the largest element so it doesn't matter.
-        token_onehot = decoder_output[0, count_tokens, 1:]
-
-        # Convert to an integer-token.
-        token_int = np.argmax(token_onehot)
-        output.append(token_int)
-
-        # Lookup the word corresponding to this integer-token.
-        # sampled_word = tokenizer.token_to_word(token_int)
-
-        # Append the word to the output-text.
-        # output_text += " " + sampled_word
-
-        # Increment the token-counter.
-        count_tokens += 1
-
-    # print(image_batch.shape)
-    print(output)
+    plt.imshow(plt.imread(filename))
+    plt.show()
 
 
 
 if __name__ == '__main__':
-    # predict(['./flickr8k/Flicker8k_Dataset/3452411712_5b42d2a1b5.jpg'])
-    run()
+    predict(['./flickr8k/Flicker8k_Dataset/3452411712_5b42d2a1b5.jpg'])
+    # run()
