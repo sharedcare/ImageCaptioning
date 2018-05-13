@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # title           :train.py
-# description     :Image captioning model training steps.
+# description     :Image captioning model train and predict steps.
 # author          :Yizhen Chen
 # date            :Apr. 24, 2018
 # python_version  :3.6.3
@@ -70,7 +70,7 @@ def run():
                                                   rnn_state_size=128,
                                                   embedding_size=128,
                                                   rnn_activation='softmax',
-                                                  cnn_model='inception_v3',
+                                                  cnn_model='inception_v4',
                                                   optimizer=Adam,
                                                   initializer='random_uniform',
                                                   learning_rate=1e-3,
@@ -148,5 +148,5 @@ def predict(filename):
 
 
 if __name__ == '__main__':
-    predict(['./flickr8k/Flicker8k_Dataset/3452411712_5b42d2a1b5.jpg'])
-    # run()
+    # predict(['./flickr8k/Flicker8k_Dataset/3452411712_5b42d2a1b5.jpg'])
+    run()

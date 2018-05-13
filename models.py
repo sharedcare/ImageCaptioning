@@ -8,7 +8,7 @@
 from keras.applications.inception_v3 import InceptionV3
 from keras.applications.vgg16 import VGG16
 from keras.layers import Input, BatchNormalization, RepeatVector, Embedding, Dense, GRU, LSTM, TimeDistributed, Dropout, \
-    concatenate, add, Masking
+    concatenate, add, Masking, GlobalAveragePooling2D
 from keras.models import Model
 from keras import backend as K
 from keras.regularizers import l1, l2, l1_l2
@@ -16,7 +16,7 @@ from keras.optimizers import Adam, RMSprop
 from keras.initializers import RandomUniform
 from keras.utils import plot_model
 
-import tensorflow as tf
+import inception_v4
 
 
 class ImageCaptioningModel(object):
@@ -126,11 +126,18 @@ class ImageCaptioningModel(object):
 
         elif self._cnn_model == 'vgg16':
             base_model = VGG16(weights='imagenet')
-            for layer in base_model:
+            for layer in base_model.layers:
                 layer.trainable = self._is_trainable
 
             transfer_layer = base_model.get_layer('fc2')
             base_model_output = transfer_layer.output
+
+        elif self._cnn_model == 'inception_v4':
+            base_model = inception_v4.create_model(weights='imagenet', include_top=False)
+            for layer in base_model.layers:
+                layer.trainable = self._is_trainable
+
+            base_model_output = GlobalAveragePooling2D()(base_model.output)
 
         else:
             raise ValueError('Image CNN is not available')
@@ -225,6 +232,6 @@ if __name__ == '__main__':
                                                   loss='categorical_crossentropy')
 
     image_captioning_model.build_model()
-    decoder_model = image_captioning_model.image_captioning_model
-    plot_model(decoder_model, to_file='model2.png')
-    decoder_model.summary()
+    model = image_captioning_model.image_captioning_model
+    plot_model(model, to_file='model.png')
+    model.summary()
