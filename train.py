@@ -60,6 +60,8 @@ def run():
 
     generator_func = generator(image_data_path, caption_path, batch_size)
 
+
+
     image_captioning_model = ImageCaptioningModel(31,
                                                   rnn_mode='lstm',
                                                   drop_rate=0.5,
@@ -84,7 +86,7 @@ def run():
 
     save_path = 'model.h5'
 
-    ckpt_path = None
+    ckpt_path = 'checkpoint.h5'
 
     if ckpt_path:
         model.load_weights(ckpt_path)
@@ -98,32 +100,9 @@ def run():
 
 
 def predict(filename):
-    seq_length = 30
     model_path = 'model.h5'
-    ckpt_path = 'checkpoint.h5'
-    '''
-    image_captioning_model = ImageCaptioningModel(rnn_mode='lstm',
-                                                 drop_rate=0.1,
-                                                 hidden_dim=3,
-                                                 rnn_state_size=256,
-                                                 embedding_size=512,
-                                                 rnn_activation='linear',
-                                                 cnn_model=InceptionV3,
-                                                 optimizer=RMSprop,
-                                                 initializer='random_uniform',
-                                                 learning_rate=0.001,
-                                                 reg_l1=0.001,
-                                                 reg_l2=0.001,
-                                                 num_word=8388,
-                                                 is_trainable=False,
-                                                 metrics=None,
-                                                 loss='categorical_crossentropy')
 
-    image_captioning_model.build()
-    decoder_model = image_captioning_model.image_captioning_model
-'''
     decoder_model = load_model(model_path)
-    # model = load_model(model_path)
 
     preprocessor = ImagePreprocessor(is_training=False)
     if type(filename) == str:
@@ -134,7 +113,7 @@ def predict(filename):
     else:
         raise ValueError('Input image name is not vaild')
 
-    decoder_input_shape = (1, seq_length)
+    decoder_input_shape = (1, 31)
     decoder_input = np.zeros(shape=decoder_input_shape, dtype=np.int)
 
     token_int = 2
