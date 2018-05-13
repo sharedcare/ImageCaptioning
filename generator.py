@@ -1,3 +1,10 @@
+#!/usr/bin/env python
+# title           :generator.py
+# description     :Generate batch data for fit_generator
+# author          :Tiancheng Luo
+# date            :Apr. 21, 2018
+# python_version  :3.6.3
+
 import json
 from preprocessing.image_processing import ImagePreprocessor
 from preprocessing.caption_processing import CaptionPreprocessor
@@ -96,5 +103,5 @@ if __name__ == '__main__':
     for test in sequence:
         x_data, y_data = test
 
-        print(x_data, y_data)
+        print(x_data['text_input'].shape)
         break
