@@ -5,7 +5,23 @@
 # date            :Apr. 26, 2018
 # python_version  :3.6.3
 
-from keras.callbacks import ModelCheckpoint, TensorBoard
+from keras.callbacks import ModelCheckpoint, TensorBoard, Callback
+
+
+class FloydMetrics(Callback):
+    def __init__(self, display):
+        Callback.__init__(self)
+
+        self.seen = 0
+        self.display = display
+
+    def on_batch_end(self, batch, logs=None):
+        if self.seen % self.display == 0:
+            for k in self.params['metrics']:
+                if k in logs:
+                    v = logs[k]
+
+                    print('{{"metric": "{}", "value": {}}}'.format(k, v))
 
 
 def callback(path_checkpoint=None, log_dir=None):
@@ -22,5 +38,8 @@ def callback(path_checkpoint=None, log_dir=None):
                                   histogram_freq=0,
                                   write_graph=False)
         callbacks.append(tensorboard)
+
+    floyd = FloydMetrics(20)
+    callbacks.append(floyd)
         
     return callbacks
