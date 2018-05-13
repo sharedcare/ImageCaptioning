@@ -15,7 +15,7 @@ class FloydMetrics(Callback):
         self.seen = 0
         self.display = display
 
-    def on_batch_end(self, batch, logs=None):
+    def on_epoch_end(self, epoch, logs=None):
         if self.seen % self.display == 0:
             for k in self.params['metrics']:
                 if k in logs:
