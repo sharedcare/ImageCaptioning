@@ -5,7 +5,6 @@
 # date            :Apr. 24, 2018
 # python_version  :3.6.3
 # ==============================================================================
-import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -21,6 +20,7 @@ from preprocessing.image_processing import ImagePreprocessor
 from callbacks import callback
 from generator import generator
 
+import os
 
 config = {
     'learning_rate': None,                  # Learning rate for model optimizer
@@ -61,8 +61,6 @@ def run():
 
     generator_func = generator(image_data_path, caption_path, batch_size)
 
-
-
     image_captioning_model = ImageCaptioningModel(31,
                                                   rnn_mode='lstm',
                                                   drop_rate=0.5,
@@ -89,7 +87,8 @@ def run():
 
     ckpt_path = 'checkpoint.h5'
 
-    if ckpt_path:
+    if ckpt_path and os.path.isfile(ckpt_path):
+        print("Load Check Point")
         model.load_weights(ckpt_path)
 
     model.fit_generator(generator=generator_func,
@@ -144,7 +143,6 @@ def predict(filename):
 
     plt.imshow(plt.imread(filename))
     plt.show()
-
 
 
 if __name__ == '__main__':
