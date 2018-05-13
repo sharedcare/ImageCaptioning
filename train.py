@@ -61,39 +61,41 @@ def run():
 
     generator_func = generator(image_data_path, caption_path, batch_size)
 
-    image_captioning_model = ImageCaptioningModel(31,
-                                                  rnn_mode='lstm',
-                                                  drop_rate=0.5,
-                                                  hidden_dim=3,
-                                                  rnn_state_size=128,
-                                                  embedding_size=128,
-                                                  rnn_activation='softmax',
-                                                  cnn_model='inception_v3',
-                                                  optimizer=Adam,
-                                                  initializer='random_uniform',
-                                                  learning_rate=1e-3,
-                                                  mode=1,
-                                                  reg_l1=1e-7,
-                                                  reg_l2=1e-7,
-                                                  num_word=len(generator_func.preprocessor.word_index) + 1,
-                                                  is_trainable=False,
-                                                  metrics=['accuracy'],
-                                                  loss='categorical_crossentropy')
-
-    image_captioning_model.build_model()
-    model = image_captioning_model.image_captioning_model
-
-    save_path = 'model.h5'
+    # save_path = 'model.h5'
+    save_path = False
 
     ckpt_path = 'checkpoint.h5'
 
-    if ckpt_path and os.path.isfile(ckpt_path):
-        print("Load Check Point")
-        model.load_weights(ckpt_path)
+    if save_path and os.path.isfile(save_path):
+        print("Load Saved Model")
+        model = load_model(save_path)
+    else:
+        image_captioning_model = ImageCaptioningModel(31,
+                                                      rnn_mode='lstm',
+                                                      drop_rate=0.5,
+                                                      hidden_dim=3,
+                                                      rnn_state_size=128,
+                                                      embedding_size=128,
+                                                      rnn_activation='softmax',
+                                                      cnn_model='inception_v3',
+                                                      optimizer=Adam,
+                                                      initializer='random_uniform',
+                                                      learning_rate=1e-3,
+                                                      mode=1,
+                                                      reg_l1=1e-7,
+                                                      reg_l2=1e-7,
+                                                      num_word=len(generator_func.preprocessor.word_index) + 1,
+                                                      is_trainable=False,
+                                                      metrics=['accuracy'],
+                                                      loss='categorical_crossentropy')
+
+        image_captioning_model.build_model()
+        model = image_captioning_model.image_captioning_model
 
     model.fit_generator(generator=generator_func,
                         steps_per_epoch=steps_per_epoch,
-                        epochs=5,
+                        epochs=50,
+                        verbose=2,
                         callbacks=callback('checkpoint.h5', './logs/'))
 
     model.save(save_path)
