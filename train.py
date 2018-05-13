@@ -8,7 +8,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from keras.applications.inception_v3 import InceptionV3
 from keras.models import load_model
 from keras.optimizers import RMSprop, Adam
 from keras.metrics import mae, categorical_accuracy
