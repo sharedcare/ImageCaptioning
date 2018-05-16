@@ -23,7 +23,7 @@ import os
 
 CONFIG = {
     'epoch': 50,                            # Epoch, 50 is sufficient
-    'batch_size': 50,                       # Batch size
+    'batch_size': 35,                       # Batch size
     'num_seq_per_image': 5,                 # Number of sequences for each image
     'max_seq_len': 30,                      # Maximum sequence length excluding <sos> and <eos>
     'learning_rate': 1e-3,                  # Learning rate for model optimizer
@@ -186,12 +186,12 @@ class Run(object):
 
 
 if __name__ == '__main__':
-    run = Run(image_path='./flickr8k/Flicker8k_Dataset/',
-              caption_path='./flickr8k/dataset.json',
+    run = Run(image_path='./flickr30k/flickr30k_images/',
+              caption_path='./flickr30k/dataset.json',
               config=CONFIG,
               model_path='model.h5',
               ckpt_path='checkpoint.h5')
-    # run.train()
+    run.train()
 
     for image in os.listdir('./tests'):
         file = './tests/' + image
