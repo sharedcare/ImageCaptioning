@@ -36,6 +36,7 @@ def generator(img_dir, cap_path, batch_size, max_len=30):
 
     image_processor = ImagePreprocessor(is_training=True, img_size=(299, 299))
 
+    '''
     global img_array
     if os.path.exists('./img_array.npy'):
         img_array = np.load('./img_array.npy')
@@ -44,15 +45,16 @@ def generator(img_dir, cap_path, batch_size, max_len=30):
         img_array = image_processor.process_images(image_files)
         print("\nImages preprocessed.")
         np.save('./img_array', img_array)
+    '''
 
-    return ImgSequence(img_groups, image_files, img_array, batch_size, preprocessor, max_len)
+    return ImgSequence(img_groups, image_files, img_dir, batch_size, (image_processor, preprocessor), max_len)
 
 
 class ImgSequence(Sequence):
-    def __init__(self, img_groups, image_files, img_array, batch_size, preprocessor, max_len):
-        self.img_groups, self.image_files, self.img_array, self.max_len = img_groups, image_files, img_array, max_len
+    def __init__(self, img_groups, image_files, img_dir, batch_size, preprocessor, max_len):
+        self.img_groups, self.image_files, self.img_dir, self.max_len = img_groups, image_files, img_dir, max_len
         self.batch_size = batch_size
-        self.preprocessor = preprocessor
+        self.img_processor, self.caption_processor = preprocessor
 
     def __len__(self):
         return int(np.ceil(len(self.img_groups) / float(self.batch_size)))
@@ -61,13 +63,15 @@ class ImgSequence(Sequence):
         idx = np.random.randint(len(self.img_groups), size=self.batch_size)
 
         cap_data = []
-        img_input_data = self.img_array[idx]
+        img_file_names = []
+        # img_input_data = self.img_array[idx]
 
         for id in idx:
             img_file_name = self.image_files[id].split('/')[-1]
+            img_file_names.append(self.img_dir + img_file_name)
             captions = self.img_groups[img_file_name]
 
-            encoded_captions = self.preprocessor.encode_captions(captions)
+            encoded_captions = self.caption_processor.encode_captions(captions)
 
             i = np.random.choice(len(encoded_captions))
 
@@ -75,13 +79,15 @@ class ImgSequence(Sequence):
 
         cap_padded = pad_sequences(cap_data, maxlen=self.max_len+2, padding='post', truncating='post')
 
-        new_cap = list(map(self.preprocessor.tokenizer.sequences_to_matrix, np.expand_dims(cap_padded, -1)))
+        new_cap = list(map(self.caption_processor.tokenizer.sequences_to_matrix, np.expand_dims(cap_padded, -1)))
 
         cap_final = np.asarray(new_cap)
 
         cap_input_data = cap_final[:, 0:-1, :]
 
         output_data = cap_final[:, 1:, :]
+
+        img_input_data = self.img_processor.process_images(img_file_names)
 
         x_data = \
             {
@@ -98,7 +104,7 @@ class ImgSequence(Sequence):
 
 
 if __name__ == '__main__':
-    sequence = generator('./flickr8k/Flicker8k_Dataset/', './flickr8k/dataset.json', 1)
+    sequence = generator('./flickr30k/flickr30k_images/flickr30k_images', './flickr30k/dataset.json', 30)
 
     for test in sequence:
         x_data, y_data = test
