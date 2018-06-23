@@ -6,10 +6,9 @@
 # python_version  :3.6.3
 #==============================================================================
 import numpy as np
-from keras.preprocessing.image import load_img, img_to_array
+from keras.preprocessing.image import load_img, img_to_array, list_pictures
 from keras.applications.inception_v3 import preprocess_input
 from tqdm import tqdm
-from keras.preprocessing.image import list_pictures
 import h5py
 
 
