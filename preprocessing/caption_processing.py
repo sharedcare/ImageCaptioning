@@ -10,16 +10,6 @@ import numpy as np
 from keras.preprocessing.text import Tokenizer, text_to_word_sequence
 from keras.preprocessing import sequence as keras_seq
 
-'''For this preprocessing method
-
-You may use text_to_word_sequence to transfer all caption string to tokens
-
-Resources:
-https://github.com/keras-team/keras/blob/master/keras/preprocessing/text.py#L134
-https://github.com/Hvass-Labs/TensorFlow-Tutorials/blob/master/22_Image_Captioning.ipynb --> Tokenizer
-https://github.com/danieljl/keras-image-captioning/blob/master/keras_image_captioning/preprocessors.py#L49
-'''
-
 
 class CaptionPreprocessor(object):
     SOS_TOKEN = '<sos>'
