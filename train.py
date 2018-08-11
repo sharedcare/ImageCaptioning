@@ -191,7 +191,7 @@ if __name__ == '__main__':
               config=CONFIG,
               model_path='model.h5',
               ckpt_path='checkpoint.h5')
-    run.train()
+    # run.train()
 
     for image in os.listdir('./tests'):
         file = './tests/' + image

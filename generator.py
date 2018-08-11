@@ -11,7 +11,6 @@ from preprocessing.caption_processing import CaptionPreprocessor
 from keras.preprocessing.image import list_pictures
 from keras.utils import Sequence
 import numpy as np
-import os
 from keras.preprocessing.sequence import pad_sequences
 
 
