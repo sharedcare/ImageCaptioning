@@ -103,7 +103,7 @@ class ImgSequence(Sequence):
 
 
 if __name__ == '__main__':
-    sequence = generator('./flickr30k/flickr30k_images/flickr30k_images', './flickr30k/dataset.json', 30)
+    sequence = generator('./flickr8k/Flicker8k_Dataset/', './flickr8k/dataset.json', 30)
 
     for test in sequence:
         x_data, y_data = test

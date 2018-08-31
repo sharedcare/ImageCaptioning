@@ -115,7 +115,7 @@ class Run(object):
                                                       mode=self._mode,
                                                       reg_l1=self._reg_l1,
                                                       reg_l2=self._reg_l2,
-                                                      num_word=len(self._generator.preprocessor.word_index) + 1,
+                                                      num_word=len(self._generator.caption_processor.word_index) + 1,
                                                       is_trainable=self._is_trainable,
                                                       metrics=self._metrics,
                                                       loss=self._loss)
@@ -186,12 +186,12 @@ class Run(object):
 
 
 if __name__ == '__main__':
-    run = Run(image_path='./flickr30k/flickr30k_images/',
-              caption_path='./flickr30k/dataset.json',
+    run = Run(image_path='./flickr8k/Flicker8k_Dataset/',
+              caption_path='./flickr8k/dataset.json',
               config=CONFIG,
               model_path='model.h5',
               ckpt_path='checkpoint.h5')
-    # run.train()
+    run.train()
 
     for image in os.listdir('./tests'):
         file = './tests/' + image
