@@ -18,7 +18,7 @@ title: Image Captioning
 description: >- # this means to ignore newlines until "baseurl:"
   Image Captioning
 baseurl: "/ImageCaptioning" # the subpath of your site, e.g. /blog
-url: "https://sharedcare.io" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://tchen.net" # the base hostname & protocol for your site, e.g. http://example.com
 # twitter_username: jekyllrb
 # github_username:  jekyll
 
